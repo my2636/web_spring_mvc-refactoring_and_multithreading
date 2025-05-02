@@ -41,7 +41,7 @@ public class Server {
         }
     }
 
-    static void getConnection(Socket socket) {
+    private static void getConnection(Socket socket) {
         try (
                 final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 final var out = new BufferedOutputStream(socket.getOutputStream())
