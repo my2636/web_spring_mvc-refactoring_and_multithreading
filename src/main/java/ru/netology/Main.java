@@ -1,6 +1,5 @@
 package ru.netology;
 
-
 import java.io.BufferedOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,7 +30,6 @@ public class Main {
                     "Content-Length: " + length + "\r\n" +
                     "Connection: close\r\n" +
                     "\r\n";
-            System.out.println("Body: " + requestBody);
             responseStream.write(responseContent.getBytes());
             Files.copy(filePath, responseStream);
             responseStream.flush();

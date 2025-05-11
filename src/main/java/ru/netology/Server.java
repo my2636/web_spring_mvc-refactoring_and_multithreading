@@ -60,13 +60,11 @@ public class Server {
         try {
             final String requestLine = in.readLine();
             if (requestLine == null) {
-                System.out.println("Null");
                 sendErrorResponse(out);
                 return;
             }
             final var parts = requestLine.split(" ");
             if (parts.length != 3) {
-                System.out.println("Parts not 3");
                 sendErrorResponse(out);
                 return;
             }
@@ -75,14 +73,12 @@ public class Server {
             final String path = parts[1];
             System.out.println(path);
             if (!isValidPath(path)) {
-                System.out.println("No valid path");
                 sendErrorResponse(out);
                 return;
             }
 
             final var filePath = Path.of(".", "public", path);
             if (!Files.exists(filePath)) {
-                System.out.println("No path");
                 sendErrorResponse(out);
                 return;
             }
@@ -94,7 +90,6 @@ public class Server {
             if (handler != null) {
                 handler.handle(request, out);
             } else {
-                System.out.println("No handler");
                 sendErrorResponse(out);
             }
 
