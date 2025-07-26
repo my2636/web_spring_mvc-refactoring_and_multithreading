@@ -1,5 +1,7 @@
 package ru.netology;
 
+import org.apache.hc.core5.http.NameValuePair;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,34 +60,12 @@ public class Server {
 
     private static void processRequest(BufferedReader in, BufferedOutputStream out) {
         try {
-            final String requestLine = in.readLine();
-            if (requestLine == null) {
-                sendErrorResponse(out);
-                return;
-            }
-            final var parts = requestLine.split(" ");
-            if (parts.length != 3) {
-                sendErrorResponse(out);
-                return;
-            }
 
-            final String method = parts[0];
-            final String path = parts[1];
-            System.out.println(path);
-            if (!isValidPath(path)) {
-                sendErrorResponse(out);
-                return;
-            }
-
-            final var filePath = Path.of(".", "public", path);
-            if (!Files.exists(filePath)) {
-                sendErrorResponse(out);
-                return;
-            }
-
-            Request request = parseRequest(in, method);
-
-            Handler handler = handlers.get(Map.entry(method, path));
+            Request request = parseRequest(in, out);
+            System.out.println(request);
+//            System.out.println("\n\n" + request.getQueryParam("Sec-Fetch-Dest"));
+//            System.out.println("\n\n" + request.getQueryParams());
+            Handler handler = handlers.get(Map.entry(request.getMethod(), request.getPath()));
 
             if (handler != null) {
                 handler.handle(request, out);
@@ -113,8 +93,30 @@ public class Server {
         out.flush();
     }
 
-    private static Request parseRequest(BufferedReader in, String method) throws IOException {
+    private static Request parseRequest(BufferedReader in, BufferedOutputStream out) throws IOException {
         // получаем заголовки
+
+        final String requestLine = in.readLine();
+        if (requestLine == null) {
+            sendErrorResponse(out);
+        }
+        final var parts = requestLine.split(" ");
+        if (parts.length != 3) {
+            sendErrorResponse(out);
+        }
+
+        final String method = parts[0];
+        final String path = parts[1];
+        System.out.println(path);
+        if (!isValidPath(path)) {
+            sendErrorResponse(out);
+        }
+
+        final var filePath = Path.of(".", "public", path);
+        if (!Files.exists(filePath)) {
+            sendErrorResponse(out);
+        }
+
         StringBuilder headersBuilder = new StringBuilder();
         String headerLine;
         while ((headerLine = in.readLine()) != null && !headerLine.isEmpty()) {
@@ -152,6 +154,8 @@ public class Server {
             }
         }
 
-        return new Request(method, headers, body);
+        return new Request(method, path, headers, body);
     }
+
+
 }
